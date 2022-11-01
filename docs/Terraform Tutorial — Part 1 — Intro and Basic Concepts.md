@@ -109,18 +109,19 @@ To install Terraform use [the official installation methods](https://www.terrafo
 
 Save the above code into main.tf file and run the following commands.
 
-terraform init
+` terraform init `
 
 After running the init command, you can see the .terraform directory and .terraform.lock.hcl next to your main.tf file.
 
+![](../images/terraform_init_success.png)
 
 After initialization, run the plan command.
 
-terraform plan
+```terraform plan```
 
 And then run the apply command.
 
-terraform apply
+```terraform apply```
 
 After running the apply command, you can see myfile.txt as well as terraform.tfstate file next to previous files.
 
@@ -143,14 +144,7 @@ If we want to destroy the infrastructure or any previously deployed resources, w
 
 terraform destroy
 
-Final words and conclusion:
+## Final words and conclusion:
+
 Terraform is a cool tool in the DevOps sector. It has made DevOps engineers’ life sweeter and easier. With the aid of Terraform, you can manage many things with codes. It makes your infrastructure and applications lifecycle repeatable and more manageable. I have many things to teach you about the Terraform. To support this tutorial, just CLAP it, and STAR STAR STAR the following GitHub repository.
 
-ssbostan/terraform-tutorial
-You can't perform that action at this time. You signed in with another tab or window. You signed out in another tab or…
-github.com
-
-63
-
-
-1
