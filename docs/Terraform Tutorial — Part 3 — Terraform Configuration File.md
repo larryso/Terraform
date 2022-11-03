@@ -76,3 +76,144 @@ variable "vm_ports" {
 }
 ```
 
+In the above snippet, “vm_ports” is the variable name and it is declared as list type and hence it is mentioned as “list(object({}))“. Then it is also having the default values in “default” section.
+
+```
+Output Variables are like returned variables from after execution of the module. Output variable can be declared as “output“.
+```
+So, the above snippet will have the block called “output” and the name of the variable is “ec2_instance_id” and this will get the value of executed module. For this case, after the EC2instance creation, it will return the ID of the created EC2 instance and that can be used further to configure the particular created EC2 instance.
+
+Local Variables are basically the variables that are made available within the modules and these are mentioned as “locals“
+
+```
+# Local Variables
+
+locals {
+  operation_name = "app-server"
+  instance_id = ec2_instance_id
+}
+```
+So, the above snippet shows the list of local variables called “operation_name” and the “instance_id“. Just note closely that we have connected the output variable name “ec2_instance_id” in the “instance_id” and hence it is going to be a dynamic local variable.
+
+## Data Source
+the data source can be used to feed the Terraform configuration with the set of data from outside the Terraform or from other Terraform Configuration files. These data source block can be defined as “data” and followed by braces “{ ... }“.
+```
+# Data source.
+
+data "aws_ami" "server_ami" {
+  most_recent = true
+  filter {
+    name   = "name"
+    values = ["server-*"]
+  }
+}
+
+#resorce that is using data source.
+
+resource "aws_instance" "server" {
+  ami           = "${data.aws_ami.server_ami.id}"
+  instance_type = "t2.nano"
+}
+```
+So the snippet shows the data block. which will get AWS AMI from the repository or somewhere where the AMIs are listed and prefixed with “server-“. Then the same data source can be used by the resource mentioned in the snippet as “data.aws_ami.server_ami.id“.
+
+## Built-in Functions
+One of the fantastic feature of terraform is built-in functions that perform some logical calculation or some operations.
+* Numeric Function – to perform Numeric operations like max, min, floor, abs, and more.
+* Collection Function – Set of values functions like list, index, key, concat and more.
+* String Function – String related operation like, Join, indent, format, replace, split and more.
+* Encoding Function – Encode related functions like URLencode, jsonencode, base64encode and more.
+* Filesystem Function – Importantly, filesystem functions like abspath, dirname, basename, filename and more.
+* Date & Time Function – Time based functions like timestamp, formatedate and timeadd.
+* Hash and Crypto Functions – Encryption/decryption and hashing functions like filemd5, bcrypt,
+* Networking Functions – Another important, Network related functions like, cidrhost, cidrnetmask, and cidrsubnet.
+* Type Conversion Functions – Casting the types to function like, tomap,tonumber, tostring, tobool and more.
+## Terraform Settings
+This is basically configuring the terraform itself. Like, mentioning the version of providers’ version or backend. The settings of the Terraform can also be declared as block and the name of the block is “terraform“.
+```
+terraform {
+    backend "akamai" {
+        # (akamai backend settings...)
+    }
+    required_providers {
+        aws = ">= 2.2.0"
+    }
+}
+```
+Basically, the Terraform block will have the some arguments that are applied for the entire Terraform configuration. So the above snippet have back-end setting for “akamai” and “required_providers” will have the minimum needed version of API that is going to be used in the terraform configuration. In this example, aws >= 2.2.0.
+## Overriding the Terraform Files
+When you define the same variable in the different Terraform files, we have to override it in order to avoid the Terraform Error. We just have to create an override file called _override.tf or override.tf. Assume we have two files called main.tf and override.tf. and main.tf will have the following code.
+```
+# main.tf
+
+resource "aws_instance" "server" {
+  ami = "ami-ba3c24af"
+  instance_type = "t2.nano"
+}
+```
+Then the other file override.tf will have the following snippet.
+```
+# override.tf
+
+resource "aws_instance" "server" {
+  ami = "ami-44aacc3322"
+}
+```
+In the both files, we have ami argument but with different value. But the terraform will take the value from the override file and consolidate the file with following snippet.
+```
+# Terrafom Consolidated file
+
+resource "aws_instance" "server" {
+  ami = "ami-44aacc3322"
+  instance_type = "t2.nano"
+}
+```
+his merging will happen in following blocks.
+
+* Resource and Data Block
+* Variables Block
+* Terraform Block
+All togather, have a look at the following terraform file, which is having almost all the component and syntax mentioned above.
+```
+# Specify the provider and access details
+provider "aws" {
+  region = "${var.aws_region}"
+}
+
+# Create a VPC to launch our instances into
+resource "aws_vpc" "default" {
+  cidr_block = "10.0.0.0/18"
+}
+
+# Output variable
+output "address" {
+  value = "${aws_elb.web.dns_name}"
+}
+
+# Example variable
+variable "key_name" {
+  description = "Desired name of AWS key pair"
+}
+
+variable "aws_region" {
+  description = "AWS region to launch servers."
+  default     = "us-west-1"
+}
+
+# Ubuntu Precise 12.04 LTS (x64)
+variable "aws_amis" {
+  default = {
+    eu-west-1 = "ami-cb03e0f1e"
+    us-east-1 = "ami-1d4969a6"
+    us-west-1 = "ami-b1f61d4"
+    us-west-2 = "ami-d4969880"
+  }
+}
+
+# Built-in function
+resource "aws_key_pair" "auth" {
+  key_name   = "${var.key_name}"
+  public_key = "${file(var.public_key_path)}"
+}
+```
+The above code snippet covers almost all the concepts mentioned above. But don’t expect that it will work as it is. This is just written to give an example.
