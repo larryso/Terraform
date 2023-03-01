@@ -1,6 +1,6 @@
 # Terraform Tutorial for Beginners
 <p align="center">
-  <img src="../images/terraform_logo.png" />
+  <img src="./images/terraform_logo.png" />
 </p>
 
 
