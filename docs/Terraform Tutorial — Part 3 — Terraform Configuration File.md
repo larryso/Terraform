@@ -117,6 +117,95 @@ resource "aws_instance" "server" {
 ```
 So the snippet shows the data block. which will get AWS AMI from the repository or somewhere where the AMIs are listed and prefixed with “server-“. Then the same data source can be used by the resource mentioned in the snippet as “data.aws_ami.server_ami.id“.
 
+## Terraform Locals
+Terraform Locals are named values which can be assigned and used in your code. It mainly serves the purpose of reducing duplication within the Terraform code. When you use Locals in the code, since you are reducing duplication of the same value, you also increase the readability of the code. But how does it differ from a Terraform variable, you may ask. There are a few differences which can be pointed out.  
+
+1. The first difference can be pointed towards the scope. 
+    A Local is only accessible within the local module vs a Terraform variable which can be scoped globally. 
+2. Another thing to note is that a local in Terraform doesn’t change its value once assigned. 
+    A variable value can be manipulated via expressions. This makes it easier to assign expression outputs to locals and use that throughout the code instead of using the expression itself at multiple places. 
+#### How to Use Terraform Locals?
+* First, declare the local along and assign a value
+* Then, use the local name anywhere in the code where that value is needed
+
+``` tf
+locals {
+  bucket_name = "mytest"
+  env         = "dev"
+}
+```
+Here we are assigning two local values. There can be many locals defined within the locals section. These locals are assigned the values to the right. Now, the locals’ name can be used across the code
+
+The values assigned to the locals are not limited to just strings or constants. Expression outputs can also be assigned:
+
+```tf
+locals {
+  instance_ids = concat(aws_instance.ec1.*.id, aws_instance.ec3.*.id)
+}
+```
+
+Terraform is not just another open source tool to manage infrastructure. One can define whole infrastructure components and implement the same using a specific coding language called Hashicorp Code Language (HCL). It has a full coding structure within itself, along with its own syntax and terminologies.
+
+For this post, I will focus on a specific, important part of the language. All coding languages have a fundamental concept of ‘variables’ and ‘scopes’. Terraform also has its own version of this called Terraform Locals. There is also a concept of variables on Terraform which can be used to assign dynamic values, but we won’t be covering that in this post. I will instead explain locals and why (and how) they should be used in your Terraform scripts. 
+
+What Are Terraform Locals?
+Terraform Locals are named values which can be assigned and used in your code. It mainly serves the purpose of reducing duplication within the Terraform code. When you use Locals in the code, since you are reducing duplication of the same value, you also increase the readability of the code. But how does it differ from a Terraform variable, you may ask. There are a few differences which can be pointed out.  
+
+The first difference can be pointed towards the scope. A Local is only accessible within the local module vs a Terraform variable which can be scoped globally. Another thing to note is that a local in Terraform doesn’t change its value once assigned. A variable value can be manipulated via expressions. This makes it easier to assign expression outputs to locals and use that throughout the code instead of using the expression itself at multiple places. 
+
+If you want to compare Terraform Local to a general programming language construct, it will be equivalent to a local temporary variable declared within a function. Here is an example of local declaration in a Terraform script:
+```
+locals {
+  bucket_name = "${var.text1}-${var.text2}"
+}
+```
+How to Use Terraform Locals? 
+Now, let’s move on to see how to use a Terraform local. When you use a Terraform local in the code, there are two parts to it:  
+
+First, declare the local along and assign a value
+Then, use the local name anywhere in the code where that value is needed
+Let’s look at an example for assigning a local:  
+```
+locals {
+  bucket_name = "mytest"
+  env         = "dev"
+}
+```
+Here we are assigning two local values. There can be many locals defined within the locals section. These locals are assigned the values to the right. Now, the locals’ name can be used across the code.   
+
+The values assigned to the locals are not limited to just strings or constants. Expression outputs can also be assigned:
+
+```
+locals {
+  instance_ids = concat(aws_instance.ec1.*.id, aws_instance.ec3.*.id)
+}
+```
+Locals can be assigned maps as values. Maps are nothing but a list of key value pairs. Here is an example of assigning a map to the local:
+```
+locals {
+  env_tags = {
+    envname = "dev"
+    envteam = "devteam"
+  }
+}
+```
+One thing to note here is that the local name defined has to be unique across the code, because this is the name with which it will be referenced in various places.
+
+Now that we have seen how to declare a local, let’s see how to use one. Since the local has been defined with a specific name, the local can be referenced anywhere with the expression 
+
+local.<declared_name>
+```
+resource "aws_s3_bucket" "my_test_bucket" {
+  bucket = local.bucket_name
+  acl    = "private"
+ 
+  tags = {
+    Name        = local.bucket_name
+    Environment = local.env
+  }
+}
+```
+
 ## Built-in Functions
 One of the fantastic feature of terraform is built-in functions that perform some logical calculation or some operations.
 * Numeric Function – to perform Numeric operations like max, min, floor, abs, and more.
