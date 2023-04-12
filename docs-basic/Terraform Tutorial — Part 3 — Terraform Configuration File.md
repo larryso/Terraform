@@ -58,8 +58,8 @@ Just like any other configuration management system, Terraform is in need of var
 * Local variable – Local variables set values can be used within the modules.
 
 Input Variables are mentioned as “variables” and followed by braces “{ ... }“.
-```
-#Input variables:
+### Input variables:
+```t
 
 variable "vm_ports" {
   type = list(object({
@@ -79,16 +79,30 @@ variable "vm_ports" {
 
 In the above snippet, “vm_ports” is the variable name and it is declared as list type and hence it is mentioned as “list(object({}))“. Then it is also having the default values in “default” section.
 
-```
-Output Variables are like returned variables from after execution of the module. Output variable can be declared as “output“.
-```
-So, the above snippet will have the block called “output” and the name of the variable is “ec2_instance_id” and this will get the value of executed module. For this case, after the EC2instance creation, it will return the ID of the created EC2 instance and that can be used further to configure the particular created EC2 instance.
+### Output variable
+Output values make information about your infrastructure available on the command line, and can expose information for other Terraform configurations to use. Output values are similar to return values in programming languages.
 
+Output values have several uses:
+
+* A child module can use outputs to expose a subset of its resource attributes to a parent module.
+* A root module can use outputs to print certain values in the CLI output after running terraform apply.
+* When using remote state, root module outputs can be accessed by other configurations via a terraform_remote_state data source.
+
+#### Declaring an Output Valu
+```t
+output "instance_ip_addr" {
+  value = aws_instance.server.private_ip
+}
+```
+##### Accessing Child Module Outputs
+In a parent module, outputs of child modules are available in expressions as module.<MODULE NAME>.<OUTPUT NAME>. For example, if a child module named web_server declared an output named instance_ip_addr, you could access that value as module.web_server.instance_ip_addr.
+
+[More Reference](https://developer.hashicorp.com/terraform/language/values/outputs)
+
+### Local Variables
 Local Variables are basically the variables that are made available within the modules and these are mentioned as “locals“
 
-```
-# Local Variables
-
+```t
 locals {
   operation_name = "app-server"
   instance_id = ec2_instance_id
@@ -98,7 +112,8 @@ So, the above snippet shows the list of local variables called “operation_name
 
 ## Data Source
 the data source can be used to feed the Terraform configuration with the set of data from outside the Terraform or from other Terraform Configuration files. These data source block can be defined as “data” and followed by braces “{ ... }“.
-```
+
+```t
 # Data source.
 
 data "aws_ami" "server_ami" {
@@ -139,7 +154,7 @@ Here we are assigning two local values. There can be many locals defined within 
 
 The values assigned to the locals are not limited to just strings or constants. Expression outputs can also be assigned:
 
-```tf
+```t
 locals {
   instance_ids = concat(aws_instance.ec1.*.id, aws_instance.ec3.*.id)
 }
