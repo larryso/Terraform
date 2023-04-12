@@ -3,6 +3,7 @@
   <img src="../images/terraform_logo.png" />
 </p>
 As we discussed in the previous part, Terraform will read the configuration file (.tf) and execute the actions according to that. This Configuration file is written in Terraform’s own language called HashiCorp Configuration Language (HCL) which is easily readable for Human and Machine as well and hence it is called Declarative Language. So, first, we will see the basic elements and structure of the Terraform Configuration Language.
+
 ## Syntax
 First of all, we will discuss the syntax and arguments that are going to be used in the Terraform Configuration file. The following are the basic arguments and syntax that we are going to use in HCL.
 

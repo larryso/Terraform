@@ -8,6 +8,48 @@
 Providers are an important part of Terraform. From one side, they get what they should do from the Terraform, and on the other side, they communicate with real infrastructures, software, etc., to do real actions. They know everything on the real-world side of the Terraform lifecycle. For example, when you write a Terraform code to create an EC2 Instance in AWS, the AWS provider knows how to connect to the AWS API, authenticate to it, which endpoint(s) should be called to create an EC2 Instance, and it knows the AWS API responses and etc. So, if you want to integrate the Terraform with a cloud environment, infrastructure, software, etc., you need its provider to able the Terraform to communicate with it. Terraform comes with a vast of providers, and they are separated into three types. Official Providers are developed, maintained and provided by the HashiCorp team officially. Verified Providers are developed, maintained and distributed by the official team of the software (For example, the Cloudflare provider is provided by the Cloudflare company). Community Providers are developed, maintained and distributed by third parties like me, you or everyone.
 You can find all available providers in the [Terraform Registry](https://registry.terraform.io)
 
+### How to Use Providers
+Providers are released separately from Terraform itself, and have their own version numbers. In production we recommend constraining the acceptable provider versions in the configuration's provider requirements block, to make sure that terraform init does not install newer versions of the provider that are incompatible with the configuration.
+
+To use resources from a given provider, you need to include some information about it in your configuration.
+
+#### Provider Requirements
+Terraform relies on plugins called "providers" to interact with remote systems. Terraform configurations must declare which providers they require, so that Terraform can install and use them.
+
+Each Terraform module must declare which providers it requires, so that Terraform can install and use them. Provider requirements are declared in a required_providers block.
+
+A provider requirement consists of a local name, a source location, and a version constraint:
+
+```json
+terraform {
+  required_providers {
+    mycloud = {
+      source  = "mycorp/mycloud"
+      version = "~> 1.0" ## 
+    }
+  }
+}
+```
+The required_providers block must be nested inside the top-level terraform block (which can also contain other settings).
+
+Each argument in the required_providers block enables one provider. The key determines the provider's local name (its unique identifier within this module), and the value is an object with the following elements:
+
+* source - the global source address for the provider you intend to use, such as hashicorp/aws.
+
+* version - a version constraint specifying which subset of available provider versions the module is compatible with.
+
+#### Provider Configuration
+Provider configurations belong in the root module of a Terraform configuration. (Child modules receive their provider configurations from the root module,  for more information, see The ![Module providers Meta-Argument](https://developer.hashicorp.com/terraform/language/meta-arguments/module-providers) and ![Module Development: Providers Within Modules](https://developer.hashicorp.com/terraform/language/modules/develop/providers) .)
+
+A provider configuration is created using a provider block:
+
+```json
+provider "google" {
+  project = "acme-app"
+  region  = "us-central1"
+}
+```
+
 ## What is the Resource, and what does it do?
 The resource is an abstract entity which points to something in the real world. It may point to a virtual machine in a VMware infrastructure, a file in your local system, a user in a Grafana dashboard, a database in the AWS cloud, and sometimes, it points to nothing “in the case of Null Resource”. Well, how can you find and use them? Actually, it’s up to the Provider. Every Terraform provider may provide one or more resources. For example, the AWS provider comes with a multitude of resources which able you to do anything in the AWS cloud services. You can find all resources provided by the provider in its document. For example, it’s the [AWS](https://registry.terraform.io/providers/hashicorp/aws/latest/docs) document page.
 
